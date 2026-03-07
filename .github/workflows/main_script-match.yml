@@ -27,6 +27,7 @@ jobs:
         run: |
           npm install
           npm run build --if-present
+          npm run test --if-present
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -50,9 +51,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8C614AB1E8D147B19B358E5874CA9A8D }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F29DDD20C808431AB10BD5DACCB9BA96 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_24321CB4C8DE4FEE81382E46ABF4C0AB }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_74A7B9328514402586D0E783B1611026 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_62EAEB81F3864168A29F26985D15C402 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DAFBED23527841B09DBFE55700E65535 }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -61,5 +62,4 @@ jobs:
           app-name: 'script-match'
           slot-name: 'Production'
           package: .
-
           
