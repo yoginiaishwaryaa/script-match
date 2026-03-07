@@ -16,10 +16,12 @@ const index = process.env.SEARCH_INDEX
 const storage = process.env.STORAGE_ACCOUNT
 const container = process.env.CONTAINER
 
-app.use(express.static("../frontend"))
+const __dirname = new URL('.', import.meta.url).pathname
 
-app.get("/",(req,res)=>{
- res.sendFile(path.resolve("../frontend/index.html"))
+app.use(express.static(path.join(__dirname, "../frontend")))
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/index.html"))
 })
 
 app.get("/videos", async (req, res) => {
