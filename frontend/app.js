@@ -1,17 +1,17 @@
-const API = window.location.origin
+const API = window.location.origin;
 
-function fileName(url){
- return url.split("/").pop().replace(".mp4","")
+function fileName(url) {
+  return url.split("/").pop().replace(".mp4", "")
 }
 
 /* -------------------------
 Load homepage
 --------------------------*/
 
-async function loadHome(){
+async function loadHome() {
 
- loadAllVideos()
- loadRecommendations()
+  loadAllVideos()
+  loadRecommendations()
 
 }
 
@@ -19,45 +19,45 @@ async function loadHome(){
 ALL VIDEOS (always full list)
 --------------------------*/
 
-async function loadAllVideos(){
+async function loadAllVideos() {
 
- const container = document.getElementById("allVideos")
+  const container = document.getElementById("allVideos")
 
- try{
+  try {
 
-  const res = await fetch(`${API}/videos`)
-  const videos = await res.json()
+    const res = await fetch(`${API}/videos`)
+    const videos = await res.json()
 
-  container.innerHTML = ""
+    container.innerHTML = ""
 
-  videos.forEach(v => {
+    videos.forEach(v => {
 
-   const div = document.createElement("div")
+      const div = document.createElement("div")
 
-   div.className = "video-card"
+      div.className = "video-card"
 
-   div.onclick = () => {
-    window.location =
-    `watch.html?video=${encodeURIComponent(v.videoUrl)}`
-   }
+      div.onclick = () => {
+        window.location =
+          `watch.html?video=${encodeURIComponent(v.videoUrl)}`
+      }
 
-   div.innerHTML = `
+      div.innerHTML = `
      <video class="preview" muted preload="metadata">
         <source src="${v.videoUrl}" type="video/mp4">
      </video>
      <p class="video-title">${fileName(v.videoUrl)}</p>
    `
 
-   container.appendChild(div)
+      container.appendChild(div)
 
-  })
+    })
 
- }catch(err){
+  } catch (err) {
 
-  console.error(err)
-  container.innerHTML = "Failed to load videos"
+    console.error(err)
+    container.innerHTML = "Failed to load videos"
 
- }
+  }
 
 }
 
@@ -65,121 +65,121 @@ async function loadAllVideos(){
 RECOMMENDATIONS
 --------------------------*/
 
-async function loadRecommendations(){
+async function loadRecommendations() {
 
- const container = document.getElementById("recommendations")
+  const container = document.getElementById("recommendations")
 
- const stored = localStorage.getItem("lastKeywords")
+  const stored = localStorage.getItem("lastKeywords")
 
- if(!stored){
+  if (!stored) {
 
-  container.innerHTML = "<p>No recommendations yet. Watch a video.</p>"
-  return
+    container.innerHTML = "<p>No recommendations yet. Watch a video.</p>"
+    return
 
- }
+  }
 
- const keywords = JSON.parse(stored)
+  const keywords = JSON.parse(stored)
 
- try{
+  try {
 
-  const query = keywords.join(" ")
+    const query = keywords.join(" ")
 
-  const res = await fetch(
-   `${API}/search?q=${encodeURIComponent(query)}`
-  )
+    const res = await fetch(
+      `${API}/search?q=${encodeURIComponent(query)}`
+    )
 
-  const videos = await res.json()
+    const videos = await res.json()
 
-  container.innerHTML = ""
+    container.innerHTML = ""
 
-  videos.slice(0,6).forEach(v => {
+    videos.slice(0, 6).forEach(v => {
 
-   const div = document.createElement("div")
+      const div = document.createElement("div")
 
-   div.className = "video-card"
+      div.className = "video-card"
 
-   div.onclick = () => {
+      div.onclick = () => {
 
-    window.location =
-    `watch.html?video=${encodeURIComponent(v.videoUrl)}`
+        window.location =
+          `watch.html?video=${encodeURIComponent(v.videoUrl)}`
 
-   }
+      }
 
-   div.innerHTML = `
+      div.innerHTML = `
      <video class="preview" muted preload="metadata">
        <source src="${v.videoUrl}" type="video/mp4">
      </video>
      <p class="video-title">${fileName(v.videoUrl)}</p>
    `
 
-   container.appendChild(div)
+      container.appendChild(div)
 
-  })
+    })
 
- }catch(err){
+  } catch (err) {
 
-  console.error(err)
-  container.innerHTML = "Recommendation failed"
+    console.error(err)
+    container.innerHTML = "Recommendation failed"
 
- }
-
-}
-
-async function searchVideos(){
-
- const query = document.getElementById("searchInput").value.trim()
-
- if(!query){
-  loadAllVideos()   // if empty search, restore all videos
-  return
- }
-
- const container = document.getElementById("allVideos")
-
- container.innerHTML = "Searching..."
-
- try{
-
-  const res = await fetch(
-   `${API}/search?q=${encodeURIComponent(query)}`
-  )
-
-  const videos = await res.json()
-
-  renderVideos(videos)   // update ONLY All Videos section
-
- }catch(err){
-
-  console.error(err)
-  container.innerHTML = "Search failed"
-
- }
-
-}
-
-function renderVideos(videos){
-
- const container = document.getElementById("allVideos")
-
- container.innerHTML = ""
-
- if(!videos || videos.length === 0){
-  container.innerHTML = "No videos found"
-  return
- }
-
- videos.forEach(v => {
-
-  const div = document.createElement("div")
-
-  div.className = "video-card"
-
-  div.onclick = () => {
-   window.location =
-   `watch.html?video=${encodeURIComponent(v.videoUrl)}`
   }
 
-  div.innerHTML = `
+}
+
+async function searchVideos() {
+
+  const query = document.getElementById("searchInput").value.trim()
+
+  if (!query) {
+    loadAllVideos()   // if empty search, restore all videos
+    return
+  }
+
+  const container = document.getElementById("allVideos")
+
+  container.innerHTML = "Searching..."
+
+  try {
+
+    const res = await fetch(
+      `${API}/search?q=${encodeURIComponent(query)}`
+    )
+
+    const videos = await res.json()
+
+    renderVideos(videos)   // update ONLY All Videos section
+
+  } catch (err) {
+
+    console.error(err)
+    container.innerHTML = "Search failed"
+
+  }
+
+}
+
+function renderVideos(videos) {
+
+  const container = document.getElementById("allVideos")
+
+  container.innerHTML = ""
+
+  if (!videos || videos.length === 0) {
+    container.innerHTML = "No videos found"
+    return
+  }
+
+  videos.forEach(v => {
+
+    const div = document.createElement("div")
+
+    div.className = "video-card"
+
+    div.onclick = () => {
+      window.location =
+        `watch.html?video=${encodeURIComponent(v.videoUrl)}`
+    }
+
+    div.innerHTML = `
    <video class="preview" muted preload="metadata">
      <source src="${v.videoUrl}" type="video/mp4">
    </video>
@@ -187,31 +187,31 @@ function renderVideos(videos){
    <p class="video-title">${fileName(v.videoUrl)}</p>
   `
 
-  container.appendChild(div)
+    container.appendChild(div)
 
- })
+  })
 
 }
 
 document
-.getElementById("searchInput")
-.addEventListener("input",function(){
+  .getElementById("searchInput")
+  .addEventListener("input", function () {
 
- if(this.value === ""){
-  loadAllVideos()
- }
+    if (this.value === "") {
+      loadAllVideos()
+    }
 
-})
+  })
 
 document
-.getElementById("searchInput")
-.addEventListener("keypress",function(e){
+  .getElementById("searchInput")
+  .addEventListener("keypress", function (e) {
 
- if(e.key === "Enter"){
-  searchVideos()
- }
+    if (e.key === "Enter") {
+      searchVideos()
+    }
 
-})
+  })
 
 /* -------------------------
 Start

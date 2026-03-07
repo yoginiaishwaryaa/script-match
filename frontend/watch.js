@@ -1,20 +1,20 @@
-const API = "http://localhost:3000"
+const API = window.location.origin;
 
 /* -----------------------------
 Utility functions
 ------------------------------*/
 
-function getQuery(name){
+function getQuery(name) {
 
- const params = new URLSearchParams(window.location.search)
- return params.get(name)
+  const params = new URLSearchParams(window.location.search)
+  return params.get(name)
 
 }
 
-function fileName(url){
+function fileName(url) {
 
- const name = url.split("/").pop()
- return name.replace(".mp4","")
+  const name = url.split("/").pop()
+  return name.replace(".mp4", "")
 
 }
 
@@ -22,34 +22,34 @@ function fileName(url){
 Load video player
 ------------------------------*/
 
-async function loadPlayer(){
+async function loadPlayer() {
 
- const videoUrl = decodeURIComponent(getQuery("video"))
+  const videoUrl = decodeURIComponent(getQuery("video"))
 
- const player = document.getElementById("player")
+  const player = document.getElementById("player")
 
- player.src = videoUrl
+  player.src = videoUrl
 
- const res = await fetch("http://localhost:3000/videos")
- const videos = await res.json()
+  const res = await fetch(`${API}/videos`)
+  const videos = await res.json()
 
- const currentVideo = videos.find(v => v.videoUrl === videoUrl)
+  const currentVideo = videos.find(v => v.videoUrl === videoUrl)
 
- if(currentVideo){
+  if (currentVideo) {
 
-  /* save last watched video keywords */
+    /* save last watched video keywords */
 
-  localStorage.setItem(
-    "lastKeywords",
-    JSON.stringify(currentVideo.keywords)
-  )
+    localStorage.setItem(
+      "lastKeywords",
+      JSON.stringify(currentVideo.keywords)
+    )
 
- }
+  }
 
- document.getElementById("videoTitle").innerText =
- videoUrl.split("/").pop().replace(".mp4","")
+  document.getElementById("videoTitle").innerText =
+    videoUrl.split("/").pop().replace(".mp4", "")
 
- loadRecommendations(videoUrl)
+  loadRecommendations(videoUrl)
 
 }
 
@@ -57,47 +57,29 @@ async function loadPlayer(){
 Load recommendations
 ------------------------------*/
 
-async function loadRecommendations(videoUrl){
+async function loadRecommendations(videoUrl) {
 
- try{
+  try {
 
-  const res = await fetch(`${API}/videos`)
-  const videos = await res.json()
+    /* query Azure AI Search via backend */
 
-  /* find metadata for current video */
+    const lastKeywords = localStorage.getItem("lastKeywords");
+    const keywords = lastKeywords ? JSON.parse(lastKeywords) : [];
+    const keywordQuery = keywords.length > 0 ? keywords.join(" ") : fileName(videoUrl);
 
-  const currentVideo = videos.find(v => v.videoUrl === videoUrl)
+    const recRes = await fetch(
+      `${API}/search?q=${encodeURIComponent(keywordQuery)}`
+    )
 
-  if(!currentVideo){
+    const recVideos = await recRes.json()
 
-   console.log("Video metadata not found")
-   return
+    displayRecommendations(recVideos, videoUrl)
+
+  } catch (err) {
+
+    console.error(err)
 
   }
-
-  /* use keywords as search query */
-
-  const keywordQuery = currentVideo.keywords
-     ? currentVideo.keywords.join(" ")
-     : fileName(videoUrl)
-
-  /* query Azure AI Search */
-
-  const recRes = await fetch(
-
-   `${API}/search?q=${encodeURIComponent(keywordQuery)}`
-
-  )
-
-  const recVideos = await recRes.json()
-
-  displayRecommendations(recVideos, videoUrl)
-
- }catch(err){
-
-  console.error(err)
-
- }
 
 }
 
@@ -105,29 +87,31 @@ async function loadRecommendations(videoUrl){
 Display recommendation list
 ------------------------------*/
 
-function displayRecommendations(videos,currentUrl){
+function displayRecommendations(videos, currentUrl) {
 
- const container = document.getElementById("recommendations")
+  const container = document.getElementById("recommendations")
 
- container.innerHTML = ""
+  if (!container) return;
 
- videos
-  .filter(v => v.videoUrl !== currentUrl)   // remove current video
-  .slice(0,6)                               // show top results
-  .forEach(v => {
+  container.innerHTML = ""
 
-   const div = document.createElement("div")
+  videos
+    .filter(v => v.videoUrl !== currentUrl)   // remove current video
+    .slice(0, 6)                               // show top results
+    .forEach(v => {
 
-   div.className = "side-video"
+      const div = document.createElement("div")
 
-   div.onclick = () => {
+      div.className = "side-video"
 
-    window.location =
-    `watch.html?video=${encodeURIComponent(v.videoUrl)}`
+      div.onclick = () => {
 
-   }
+        window.location =
+          `watch.html?video=${encodeURIComponent(v.videoUrl)}`
 
-   div.innerHTML = `
+      }
+
+      div.innerHTML = `
 
    <video class="side-preview" muted preload="metadata">
      <source src="${v.videoUrl}" type="video/mp4">
@@ -137,9 +121,9 @@ function displayRecommendations(videos,currentUrl){
 
    `
 
-   container.appendChild(div)
+      container.appendChild(div)
 
- })
+    })
 
 }
 
