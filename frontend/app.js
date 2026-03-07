@@ -1,4 +1,4 @@
-const API = "http://localhost:3000"
+const API = window.location.origin
 
 function fileName(url){
  return url.split("/").pop().replace(".mp4","")

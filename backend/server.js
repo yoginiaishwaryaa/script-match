@@ -2,6 +2,7 @@ import express from "express"
 import axios from "axios"
 import cors from "cors"
 import dotenv from "dotenv"
+import path from "path"
 
 dotenv.config()
 
@@ -15,25 +16,11 @@ const index = process.env.SEARCH_INDEX
 const storage = process.env.STORAGE_ACCOUNT
 const container = process.env.CONTAINER
 
-function formatVideo(v){
+app.use(express.static("../frontend"))
 
- const filename = v.videoUrl?.split("/").pop()
-
- return {
-
-  id: v.id,
-
-  videoUrl:`https://${storage}.blob.core.windows.net/${container}/${filename}`,
-
-  transcript:v.transcript,
-
-  keywords:v.keywords,
-
-  topics:v.topics
-
- }
-
-}
+app.get("/",(req,res)=>{
+ res.sendFile(path.resolve("../frontend/index.html"))
+})
 
 app.get("/videos", async (req, res) => {
 
@@ -152,6 +139,8 @@ res.status(500).send("error")
 
 })
 
-app.listen(process.env.PORT,()=>{
- console.log("Server running on port",process.env.PORT)
+const PORT = process.env.PORT || 3000
+
+app.listen(PORT,()=>{
+ console.log("Server running on port",PORT)
 })
