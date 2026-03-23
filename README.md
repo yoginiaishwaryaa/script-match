@@ -54,7 +54,7 @@ When a user watches a movie, their taste profile is updated in **Azure Cosmos DB
 
 ---
 
-## 👥 Contributors
+## 👥 Team
 
 | Name | GitHub |
 |------|--------|
